@@ -38,39 +38,23 @@ export default function LoginForm() {
     if (isLoggedIn && user) {
       console.log('[LoginForm] User is logged in, preparing redirect...');
       
-      // Ensure the token is set in cookies before redirecting
-      const checkTokenAndRedirect = () => {
-        const token = document.cookie.split('; ').find(row => row.startsWith('access_token='));
-        if (token) {
-          let redirectPath = '/dashboard';
-          const redirect = searchParams.get('redirect');
-          
-          // Use the redirect parameter if it exists and is valid
-          if (redirect) {
-            try {
-              // Ensure the redirect path is safe and starts with a slash
-              const url = new URL(redirect, window.location.origin);
-              if (url.pathname.startsWith('/')) {
-                redirectPath = url.pathname + (url.search || '');
-                console.log(`[LoginForm] Using redirect path: ${redirectPath}`);
-              }
-            } catch (e) {
-              console.error('[LoginForm] Invalid redirect path:', redirect);
-            }
-          }
-          
-          console.log(`[LoginForm] Token found, redirecting to: ${redirectPath}`);
-          // Use replace instead of setting href to prevent adding to browser history
-          window.location.replace(`${redirectPath}?from=login`);
-        } else {
-          console.log('[LoginForm] Token not found in cookies, retrying...');
-          // Retry after a short delay
-          setTimeout(checkTokenAndRedirect, 100);
-        }
-      };
+      // Get the redirect path from URL or use default
+      const redirectParam = searchParams.get('redirect');
+      const redirectPath = redirectParam && redirectParam.startsWith('/') 
+        ? redirectParam 
+        : '/dashboard';
       
-      // Start checking for the token
-      const timer = setTimeout(checkTokenAndRedirect, 100);
+      console.log(`[LoginForm] Preparing to redirect to: ${redirectPath}`);
+      
+      // Use a small delay to ensure all state updates are processed
+      const timer = setTimeout(() => {
+        // Only redirect if we're not already on the target path
+        if (window.location.pathname !== redirectPath) {
+          console.log(`[LoginForm] Executing redirect to: ${redirectPath}`);
+          // Use replace to prevent adding to browser history
+          window.location.replace(redirectPath);
+        }
+      }, 100);
       
       return () => clearTimeout(timer);
     }

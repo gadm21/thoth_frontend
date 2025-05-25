@@ -64,25 +64,25 @@ export default function LoginPage() {
       console.log('[LoginPage] User is already authenticated, checking for redirect...');
       
       // Get the redirect path from URL or use default
-      const redirectPath = searchParams.get('redirect') || '/dashboard';
+      const redirectParam = searchParams.get('redirect');
+      const redirectPath = redirectParam && redirectParam.startsWith('/') 
+        ? redirectParam 
+        : '/dashboard';
+      
+      console.log(`[LoginPage] Executing redirect to ${redirectPath}`);
       
       // Use a small delay to ensure all state updates are processed
       const timer = setTimeout(() => {
-        console.log(`[LoginPage] Executing redirect to ${redirectPath}`);
-        // Use replace instead of push to prevent back button issues
-        if (typeof window !== 'undefined') {
-          // Force a full page reload to ensure all state is properly initialized
-          window.location.href = redirectPath;
-        } else {
-          router.replace(redirectPath);
+        // Only redirect if we're not already on the target path
+        if (typeof window !== 'undefined' && window.location.pathname !== redirectPath) {
+          // Use replace to prevent adding to browser history
+          window.location.replace(redirectPath);
         }
       }, 100);
       
-      return () => {
-        clearTimeout(timer);
-      };
+      return () => clearTimeout(timer);
     }
-  }, [user, loading, router, searchParams]);
+  }, [user, loading, searchParams]);
 
   if (loading) {
     return (
