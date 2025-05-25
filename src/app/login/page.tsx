@@ -60,32 +60,24 @@ export default function LoginPage() {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (user && !loading) {
+    // Only proceed if we're not loading and we have a user
+    if (!loading && user) {
       console.log('[LoginPage] User is already authenticated, checking for redirect...');
       
       // Get the redirect path from URL or use default
       const redirectParam = searchParams.get('redirect');
-      const redirectPath = (redirectParam && redirectParam.startsWith('/')) 
+      const redirectPath = (redirectParam && redirectParam.startsWith('/') && !redirectParam.startsWith('//')) 
         ? redirectParam 
         : '/dashboard';
       
-      console.log(`[LoginPage] Preparing to redirect to: ${redirectPath}`);
-      
-      // Use a small delay to ensure all state updates are processed
-      const timer = setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          // Only redirect if we're not already on the target path
-          if (window.location.pathname !== redirectPath) {
-            console.log(`[LoginPage] Executing redirect to: ${redirectPath}`);
-            // Use replace to prevent adding to browser history
-            window.location.replace(redirectPath);
-          } else {
-            console.log('[LoginPage] Already on the target path, skipping redirect');
-          }
-        }
-      }, 100);
-      
-      return () => clearTimeout(timer);
+      // Don't redirect to the same page to prevent loops
+      if (typeof window !== 'undefined' && window.location.pathname !== redirectPath) {
+        console.log(`[LoginPage] Executing redirect to: ${redirectPath}`);
+        // Use replace to prevent adding to browser history
+        window.location.replace(redirectPath);
+      } else {
+        console.log('[LoginPage] Already on the target path, skipping redirect');
+      }
     }
   }, [user, loading, searchParams]);
 

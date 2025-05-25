@@ -4,12 +4,17 @@ import { jwtDecode } from 'jwt-decode';
 
 // List of public paths that don't require authentication
 const publicPaths = [
+  '/',
   '/login',
   '/register',
   '/forgot-password',
   '/api/auth',
   '/_next',
-  '/favicon.ico'
+  '/favicon.ico',
+  '/icons',
+  '/workbox-',
+  '/sw.js',
+  '/manifest.webmanifest'
 ];
 
 // Check if a path is public
@@ -37,6 +42,11 @@ export function middleware(request: NextRequest) {
   
   // If user is trying to access a protected route without a token
   if (!token) {
+    // Allow access to public paths
+    if (isPublicPath(pathname)) {
+      return NextResponse.next();
+    }
+    
     console.log(`[Middleware] No token found, redirecting to login from ${pathname}`);
     const loginUrl = new URL('/login', request.url);
     
@@ -45,11 +55,7 @@ export function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirect', pathname);
     }
     
-    // Don't redirect if we're already going to login to prevent loops
-    if (pathname !== '/login') {
-      return NextResponse.redirect(loginUrl);
-    }
-    return NextResponse.next();
+    return NextResponse.redirect(loginUrl);
   }
     
   // If we have a token, verify it
