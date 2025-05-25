@@ -65,18 +65,23 @@ export default function LoginPage() {
       
       // Get the redirect path from URL or use default
       const redirectParam = searchParams.get('redirect');
-      const redirectPath = redirectParam && redirectParam.startsWith('/') 
+      const redirectPath = (redirectParam && redirectParam.startsWith('/')) 
         ? redirectParam 
         : '/dashboard';
       
-      console.log(`[LoginPage] Executing redirect to ${redirectPath}`);
+      console.log(`[LoginPage] Preparing to redirect to: ${redirectPath}`);
       
       // Use a small delay to ensure all state updates are processed
       const timer = setTimeout(() => {
-        // Only redirect if we're not already on the target path
-        if (typeof window !== 'undefined' && window.location.pathname !== redirectPath) {
-          // Use replace to prevent adding to browser history
-          window.location.replace(redirectPath);
+        if (typeof window !== 'undefined') {
+          // Only redirect if we're not already on the target path
+          if (window.location.pathname !== redirectPath) {
+            console.log(`[LoginPage] Executing redirect to: ${redirectPath}`);
+            // Use replace to prevent adding to browser history
+            window.location.replace(redirectPath);
+          } else {
+            console.log('[LoginPage] Already on the target path, skipping redirect');
+          }
         }
       }, 100);
       

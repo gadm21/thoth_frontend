@@ -49,6 +49,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         document.cookie = cookieValue;
         console.log('[AuthContext] Set auth token in localStorage and cookies');
+        
+        // Trigger a storage event to sync across tabs
+        window.dispatchEvent(new Event('storage'));
       }
     } catch (error) {
       console.error('[AuthContext] Error setting auth token:', error);
@@ -63,6 +66,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         document.cookie = 'access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
         setUser(null);
         console.log('[AuthContext] Cleared auth data');
+        
+        // Trigger a storage event to sync across tabs
+        window.dispatchEvent(new Event('storage'));
       }
     } catch (error) {
       console.error('[AuthContext] Error clearing auth data:', error);
